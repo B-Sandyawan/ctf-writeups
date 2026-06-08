@@ -391,7 +391,7 @@ a:hover {
   font-family: var(--font-mono);
   font-size: 0.875rem;
   line-height: 1.7;
-  background-color: #0d1117 !important;
+  background-color: var(--shiki-light-bg, #ffffff) !important;
   border: 1px solid var(--color-border-subtle);
   border-radius: 12px;
   padding: 1.25rem 1.5rem;
@@ -439,7 +439,8 @@ a:hover {
 /* ── Shiki Theme Overrides ─────────────────────────────────── */
 .astro-code,
 .shiki {
-  background-color: #0d1117 !important;
+  background-color: var(--shiki-light-bg, #ffffff) !important;
+  color: var(--shiki-light) !important;
   border: 1px solid var(--color-border-subtle);
   border-radius: 12px;
   padding: 1.25rem 1.5rem;
