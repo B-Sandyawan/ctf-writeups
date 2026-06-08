@@ -1,0 +1,76 @@
+---
+import SEOHead from '../components/SEOHead.astro';
+import LeftSidebar from '../components/sidebar/LeftSidebar.astro';
+import RightSidebar from '../components/sidebar/RightSidebar.astro';
+import TopNav from '../components/TopNav.astro';
+import SearchModal from '../components/SearchModal.astro';
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+  ogImage?: string;
+}
+
+const {
+  title,
+  description = 'CTF writeups, notes, and security research by b-sandyawan.',
+  ogImage,
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/ctf-writeups/favicon.svg" />
+
+    <!-- Google Fonts: Preconnect -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <!-- Google Fonts: Geist, Source Serif 4, JetBrains Mono -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800;900&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,500;0,8..60,600;0,8..60,700;1,8..60,400;1,8..60,500&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- SEO -->
+    <SEOHead title={title} description={description} ogImage={ogImage} />
+
+    <!-- Theme initialization -->
+    <script is:inline>
+      const theme = localStorage.getItem('theme');
+      if (theme === 'light') {
+        document.documentElement.classList.remove('dark');
+      } else {
+        document.documentElement.classList.add('dark');
+      }
+    </script>
+  </head>
+
+  <body
+    class="bg-bg-primary text-text-primary font-body h-screen w-screen overflow-hidden flex antialiased transition-colors duration-300"
+  >
+    <!-- Left Sidebar -->
+    <LeftSidebar />
+
+    <!-- Main Content Area -->
+    <div class="flex-1 flex flex-col h-screen min-w-0 bg-bg-primary">
+      <TopNav />
+      <main class="flex-1 overflow-y-auto w-full">
+        <slot />
+      </main>
+    </div>
+
+    <!-- Right Sidebar -->
+    <RightSidebar />
+    
+    <!-- Search Modal -->
+    <SearchModal />
+  </body>
+</html>

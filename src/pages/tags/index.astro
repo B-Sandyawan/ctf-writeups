@@ -1,0 +1,120 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const allWriteups = (await getCollection('writeups')).filter(post => !post.data.draft);
+const allNotes = (await getCollection('notes')).filter(post => !post.data.draft);
+
+// Build map of tag -> { writeups: count, notes: count }
+const tagStats = new Map<string, { writeups: number, notes: number }>();
+
+allWriteups.forEach(post => {
+  post.data.tags?.forEach(tag => {
+    if (!tagStats.has(tag)) tagStats.set(tag, { writeups: 0, notes: 0 });
+    tagStats.get(tag)!.writeups++;
+  });
+});
+
+allNotes.forEach(post => {
+  post.data.tags?.forEach(tag => {
+    if (!tagStats.has(tag)) tagStats.set(tag, { writeups: 0, notes: 0 });
+    tagStats.get(tag)!.notes++;
+  });
+});
+
+const sortedTags = Array.from(tagStats.entries()).sort((a, b) => a[0].localeCompare(b[0]));
+---
+
+<BaseLayout title="Tags">
+  <div class="px-8 py-8 max-w-6xl mx-auto h-full flex flex-col">
+    <!-- Vault Header -->
+    <div class="flex items-center justify-between mb-8 pb-4 border-b border-border-subtle">
+      <div class="flex items-center gap-3">
+        <div class="text-[#00dbe7]">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+        </div>
+        <h1 class="text-3xl font-bold text-text-primary">Tags</h1>
+      </div>
+      <div class="text-xs font-mono text-text-muted">
+        {sortedTags.length} Total Tags
+      </div>
+    </div>
+
+    <!-- Interactive Tabs -->
+    <div class="flex gap-4 mb-8">
+      <button id="tab-all" class="tag-tab active px-4 py-2 rounded-lg text-sm font-bold bg-bg-elevated text-text-primary border border-[#00dbe7] transition-all">All</button>
+      <button id="tab-writeups" class="tag-tab px-4 py-2 rounded-lg text-sm font-bold bg-bg-secondary text-text-muted border border-border-subtle hover:border-[#4edea3] hover:text-[#4edea3] transition-all">Writeups</button>
+      <button id="tab-notes" class="tag-tab px-4 py-2 rounded-lg text-sm font-bold bg-bg-secondary text-text-muted border border-border-subtle hover:border-[#00dbe7] hover:text-[#00dbe7] transition-all">Notes</button>
+    </div>
+
+    <!-- Tags Grid -->
+    <div id="tags-grid" class="flex flex-wrap gap-3 pb-12">
+      {sortedTags.map(([tag, counts]) => (
+        <a
+          href={`/ctf-writeups/tags/${tag}`}
+          class="tag-item group"
+          data-writeups={counts.writeups}
+          data-notes={counts.notes}
+        >
+          <div class="flex items-center gap-2.5 px-4 py-2.5 rounded-xl border border-border/60 bg-bg-secondary/60 backdrop-blur-sm transition-all duration-300 group-hover:border-[#00dbe7]/40 group-hover:bg-bg-secondary/80 group-hover:-translate-y-0.5">
+            <span class="text-[#00dbe7]/60 group-hover:text-[#00dbe7] transition-colors duration-300 text-sm">#</span>
+            <span class="text-text-primary text-sm font-medium">{tag}</span>
+            <span class="tag-count inline-flex items-center justify-center min-w-[1.5rem] h-6 px-1.5 rounded-md bg-bg-primary/80 text-xs font-mono text-text-muted group-hover:text-[#00dbe7] transition-colors duration-300">
+              {counts.writeups + counts.notes}
+            </span>
+          </div>
+        </a>
+      ))}
+    </div>
+  </div>
+
+  <script>
+    const tabs = document.querySelectorAll('.tag-tab');
+    const items = document.querySelectorAll('.tag-item');
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', (e) => {
+        // Reset tabs
+        tabs.forEach(t => {
+          t.classList.remove('active', 'bg-bg-elevated', 'text-text-primary', 'border-[#00dbe7]', 'border-[#4edea3]');
+          t.classList.add('bg-bg-secondary', 'text-text-muted', 'border-border-subtle');
+        });
+
+        // Activate clicked tab
+        const target = e.currentTarget as HTMLElement;
+        target.classList.remove('bg-bg-secondary', 'text-text-muted', 'border-border-subtle');
+        target.classList.add('active', 'bg-bg-elevated', 'text-text-primary');
+
+        const id = target.id;
+        if (id === 'tab-writeups') target.classList.add('border-[#4edea3]');
+        else target.classList.add('border-[#00dbe7]');
+
+        // Filter items
+        items.forEach((item: HTMLElement) => {
+          const wCount = parseInt(item.dataset.writeups || '0');
+          const nCount = parseInt(item.dataset.notes || '0');
+          const countSpan = item.querySelector('.tag-count');
+
+          if (id === 'tab-all') {
+            item.style.display = 'block';
+            if (countSpan) countSpan.textContent = (wCount + nCount).toString();
+          } else if (id === 'tab-writeups') {
+            if (wCount > 0) {
+              item.style.display = 'block';
+              if (countSpan) countSpan.textContent = wCount.toString();
+            } else {
+              item.style.display = 'none';
+            }
+          } else if (id === 'tab-notes') {
+            if (nCount > 0) {
+              item.style.display = 'block';
+              if (countSpan) countSpan.textContent = nCount.toString();
+            } else {
+              item.style.display = 'none';
+            }
+          }
+        });
+      });
+    });
+  </script>
+</BaseLayout>

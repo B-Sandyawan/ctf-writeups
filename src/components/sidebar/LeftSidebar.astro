@@ -1,0 +1,64 @@
+---
+const pathname = Astro.url.pathname;
+const isActive = (path: string) => {
+  return pathname === path || pathname.startsWith(path + '/');
+};
+---
+
+<aside class="w-[260px] h-screen bg-bg-primary border-r border-border-subtle flex flex-col shrink-0">
+  <!-- Branding -->
+  <div class="h-14 flex items-center px-4 border-b border-border-subtle">
+    <div class="flex items-center gap-2 text-[#00dbe7] font-bold tracking-wider text-sm">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+      </svg>
+      <span>CTF JOURNEY</span>
+    </div>
+  </div>
+
+  <!-- User Profile -->
+  <div class="p-4 border-b border-border-subtle">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-lg bg-bg-elevated flex items-center justify-center text-text-primary">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+      </div>
+      <div>
+        <div class="text-sm font-bold text-text-primary">Bennettzy</div>
+        <div class="text-xs text-text-dim">CTF Archive Vault</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+    <a href="/ctf-writeups/" class={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive('/ctf-writeups/') ? 'bg-bg-elevated text-text-primary' : 'text-text-muted hover:bg-bg-elevated/50 hover:text-text-primary'}`}>
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+      Vault
+    </a>
+    <a href="/ctf-writeups/recent" class={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive('/ctf-writeups/recent') ? 'bg-bg-elevated text-text-primary' : 'text-text-muted hover:bg-bg-elevated/50 hover:text-text-primary'}`}>
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      Recent
+    </a>
+    <a href="/ctf-writeups/tags" class={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive('/ctf-writeups/tags') ? 'bg-bg-elevated text-text-primary' : 'text-text-muted hover:bg-bg-elevated/50 hover:text-text-primary'}`}>
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+      Tags
+    </a>
+    <a href="/ctf-writeups/starred" class={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive('/ctf-writeups/starred') ? 'bg-bg-elevated text-text-primary' : 'text-text-muted hover:bg-bg-elevated/50 hover:text-text-primary'}`}>
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      Starred
+    </a>
+  </nav>
+
+  <!-- New Note Button (Local Only) -->
+  {import.meta.env.DEV && (
+    <div class="px-4 pb-6">
+      <a href="obsidian://new?vault=ctf-writeups" class="w-full py-2 bg-bg-secondary border border-border-subtle rounded hover:border-[#00dbe7] text-[#00dbe7] text-xs font-bold tracking-widest transition-colors flex items-center justify-center gap-2 cursor-pointer">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        NEW_NOTE
+      </a>
+    </div>
+  )}
+</aside>

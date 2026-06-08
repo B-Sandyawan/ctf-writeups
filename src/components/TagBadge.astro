@@ -1,0 +1,116 @@
+---
+interface Props {
+  tag: string;
+  size?: "sm" | "md";
+  linked?: boolean;
+}
+
+const { tag, size = "sm", linked = true } = Astro.props;
+
+const tagLower = tag.toLowerCase();
+
+// Color mapping for common CTF categories
+const colorMap: Record<string, { bg: string; border: string; text: string; hover: string }> = {
+  web: {
+    bg: "bg-[#00dbe7]/10",
+    border: "border-[#00dbe7]/30",
+    text: "text-[#00dbe7]",
+    hover: "hover:bg-[#00dbe7]/20",
+  },
+  pwn: {
+    bg: "bg-[#ef4444]/10",
+    border: "border-[#ef4444]/30",
+    text: "text-[#ef4444]",
+    hover: "hover:bg-[#ef4444]/20",
+  },
+  crypto: {
+    bg: "bg-[#a855f7]/10",
+    border: "border-[#a855f7]/30",
+    text: "text-[#a855f7]",
+    hover: "hover:bg-[#a855f7]/20",
+  },
+  cryptography: {
+    bg: "bg-[#a855f7]/10",
+    border: "border-[#a855f7]/30",
+    text: "text-[#a855f7]",
+    hover: "hover:bg-[#a855f7]/20",
+  },
+  forensics: {
+    bg: "bg-[#4edea3]/10",
+    border: "border-[#4edea3]/30",
+    text: "text-[#4edea3]",
+    hover: "hover:bg-[#4edea3]/20",
+  },
+  reverse: {
+    bg: "bg-[#f97316]/10",
+    border: "border-[#f97316]/30",
+    text: "text-[#f97316]",
+    hover: "hover:bg-[#f97316]/20",
+  },
+  "reverse-engineering": {
+    bg: "bg-[#f97316]/10",
+    border: "border-[#f97316]/30",
+    text: "text-[#f97316]",
+    hover: "hover:bg-[#f97316]/20",
+  },
+  rev: {
+    bg: "bg-[#f97316]/10",
+    border: "border-[#f97316]/30",
+    text: "text-[#f97316]",
+    hover: "hover:bg-[#f97316]/20",
+  },
+  misc: {
+    bg: "bg-[#6b7280]/10",
+    border: "border-[#6b7280]/30",
+    text: "text-[#9ca3af]",
+    hover: "hover:bg-[#6b7280]/20",
+  },
+  osint: {
+    bg: "bg-[#3b82f6]/10",
+    border: "border-[#3b82f6]/30",
+    text: "text-[#3b82f6]",
+    hover: "hover:bg-[#3b82f6]/20",
+  },
+  stego: {
+    bg: "bg-[#ec4899]/10",
+    border: "border-[#ec4899]/30",
+    text: "text-[#ec4899]",
+    hover: "hover:bg-[#ec4899]/20",
+  },
+  steganography: {
+    bg: "bg-[#ec4899]/10",
+    border: "border-[#ec4899]/30",
+    text: "text-[#ec4899]",
+    hover: "hover:bg-[#ec4899]/20",
+  },
+};
+
+const defaultColors = {
+  bg: "bg-[#00dbe7]/10",
+  border: "border-[#00dbe7]/30",
+  text: "text-[#00dbe7]",
+  hover: "hover:bg-[#00dbe7]/20",
+};
+
+const colors = colorMap[tagLower] || defaultColors;
+
+const sizeClasses = {
+  sm: "text-xs px-2 py-0.5",
+  md: "text-sm px-3 py-1",
+};
+
+const baseClasses = `inline-flex items-center rounded-full border font-medium transition-all duration-200 ${sizeClasses[size]} ${colors.bg} ${colors.border} ${colors.text} ${colors.hover}`;
+---
+
+{linked ? (
+  <a
+    href={`/ctf-writeups/tags/${tag.toLowerCase()}/`}
+    class={baseClasses}
+  >
+    <span class="mr-0.5 opacity-60">#</span>{tag}
+  </a>
+) : (
+  <span class={baseClasses}>
+    <span class="mr-0.5 opacity-60">#</span>{tag}
+  </span>
+)}

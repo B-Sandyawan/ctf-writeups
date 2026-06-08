@@ -1,0 +1,104 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PostCard from '../../components/PostCard.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const allWriteups = (await getCollection('writeups')).filter(post => !post.data.draft);
+  const allNotes = (await getCollection('notes')).filter(post => !post.data.draft);
+
+  // Collect all unique tags
+  const tagMap = new Map<string, Array<{ post: any; collection: string }>>();
+
+  allWriteups.forEach(post => {
+    post.data.tags?.forEach((tag: string) => {
+      if (!tagMap.has(tag)) tagMap.set(tag, []);
+      tagMap.get(tag)!.push({ post, collection: 'writeups' });
+    });
+  });
+
+  allNotes.forEach(post => {
+    post.data.tags?.forEach((tag: string) => {
+      if (!tagMap.has(tag)) tagMap.set(tag, []);
+      tagMap.get(tag)!.push({ post, collection: 'notes' });
+    });
+  });
+
+  return [...tagMap.entries()].map(([tag, posts]) => ({
+    params: { tag },
+    props: {
+      tag,
+      posts: posts.sort((a, b) => b.post.data.date.valueOf() - a.post.data.date.valueOf()),
+    },
+  }));
+}
+
+interface Props {
+  tag: string;
+  posts: Array<{ post: any; collection: string }>;
+}
+
+const { tag, posts } = Astro.props;
+---
+
+<BaseLayout title={`Tag: #${tag}`}>
+  <section class="px-4 py-12 sm:py-16">
+    <div class="max-w-6xl mx-auto">
+      <!-- Back Link -->
+      <a
+        href="/ctf-writeups/tags/"
+        class="inline-flex items-center gap-2 text-sm text-text-muted hover:text-[#00dbe7] transition-colors duration-300 mb-8 group"
+      >
+        <svg class="w-4 h-4 transition-transform duration-300 group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+        </svg>
+        All tags
+      </a>
+
+      <!-- Header -->
+      <div class="mb-12">
+        <h1 class="text-4xl sm:text-5xl font-bold font-[family-name:var(--font-heading)] text-text-primary mb-3">
+          <span class="text-[#00dbe7]">#</span>{tag}
+        </h1>
+        <div class="h-1 w-20 bg-gradient-to-r from-[#00dbe7] to-[#4edea3] rounded-full mb-4"></div>
+        <p class="text-lg text-text-muted">
+          {posts.length} {posts.length === 1 ? 'post' : 'posts'} tagged with <span class="text-[#00dbe7] font-mono">#{tag}</span>
+        </p>
+      </div>
+
+      <!-- Posts Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {posts.map(({ post, collection }, index) => (
+          <div class="animate-card-in" style={`animation-delay: ${index * 80}ms`}>
+            <PostCard
+              title={post.data.title}
+              description={post.data.description}
+              date={post.data.date}
+              tags={post.data.tags}
+              url={`/ctf-writeups/${collection}/${post.id}`}
+              collection={collection}
+            />
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .animate-card-in {
+    animation: card-in 0.5s ease-out forwards;
+    opacity: 0;
+  }
+
+  @keyframes card-in {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>

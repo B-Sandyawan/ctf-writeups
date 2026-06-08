@@ -1,0 +1,133 @@
+---
+interface Heading {
+  depth: number;
+  slug: string;
+  text: string;
+}
+
+interface Props {
+  headings: Heading[];
+}
+
+const { headings } = Astro.props;
+
+// Filter to only show h2 and h3
+const filteredHeadings = headings.filter((h) => h.depth >= 2 && h.depth <= 3);
+
+// Indentation classes by depth
+const indentClasses: Record<number, string> = {
+  2: "pl-0",
+  3: "pl-4",
+};
+---
+
+{filteredHeadings.length > 0 && (
+  <nav
+    class="sticky top-24 hidden xl:block w-64 shrink-0"
+    aria-label="Table of contents"
+  >
+    <div class="rounded-xl border border-border/50 bg-bg-secondary/60 backdrop-blur-sm p-4">
+      <!-- Header -->
+      <div class="flex items-center gap-2 mb-4 pb-3 border-b border-border/40">
+        <svg
+          class="w-4 h-4 text-[#00dbe7]"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M4 6h16M4 10h16M4 14h10M4 18h7"
+          />
+        </svg>
+        <span class="text-sm font-semibold text-text-primary font-[Geist] tracking-wide">
+          Table of Contents
+        </span>
+      </div>
+
+      <!-- Headings list -->
+      <ul class="space-y-1 relative">
+        <!-- Left accent border line -->
+        <div class="absolute left-0 top-0 bottom-0 w-px bg-gradient-to-b from-[#00dbe7]/30 via-[#00dbe7]/10 to-transparent"></div>
+
+        {filteredHeadings.map((heading) => (
+          <li class={indentClasses[heading.depth] || "pl-0"}>
+            <a
+              href={`#${heading.slug}`}
+              class:list={[
+                "toc-link group flex items-center py-1.5 text-sm transition-all duration-200",
+                "text-text-muted/70 hover:text-[#00dbe7]",
+                heading.depth === 2 ? "font-medium" : "text-xs",
+              ]}
+              data-slug={heading.slug}
+            >
+              {/* Active indicator dot */}
+              <span class="toc-indicator mr-2 w-1.5 h-1.5 rounded-full bg-[#3a494b] transition-all duration-300 shrink-0 group-hover:bg-[#00dbe7]/60" />
+              <span class="line-clamp-1">{heading.text}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </nav>
+)}
+
+<script>
+  function initTOC() {
+    const tocLinks = document.querySelectorAll<HTMLAnchorElement>(".toc-link");
+    if (tocLinks.length === 0) return;
+
+    const headingSlugs = Array.from(tocLinks).map((l) => l.dataset.slug!);
+    const headingElements = headingSlugs
+      .map((slug) => document.getElementById(slug))
+      .filter(Boolean) as HTMLElement[];
+
+    if (headingElements.length === 0) return;
+
+    let activeSlug = headingSlugs[0];
+
+    function setActive(slug: string) {
+      if (slug === activeSlug) return;
+      activeSlug = slug;
+      tocLinks.forEach((link) => {
+        const indicator = link.querySelector(".toc-indicator");
+        if (link.dataset.slug === slug) {
+          link.classList.add("text-[#00dbe7]", "font-semibold");
+          link.classList.remove("text-text-muted/70");
+          indicator?.classList.add("bg-[#00dbe7]", "scale-125");
+          indicator?.classList.remove("bg-[#3a494b]");
+        } else {
+          link.classList.remove("text-[#00dbe7]", "font-semibold");
+          link.classList.add("text-text-muted/70");
+          indicator?.classList.remove("bg-[#00dbe7]", "scale-125");
+          indicator?.classList.add("bg-[#3a494b]");
+        }
+      });
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            setActive(entry.target.id);
+            break;
+          }
+        }
+      },
+      {
+        rootMargin: "-80px 0px -60% 0px",
+        threshold: 0.1,
+      }
+    );
+
+    headingElements.forEach((el) => observer.observe(el));
+
+    // Set initial active
+    setActive(headingSlugs[0]);
+  }
+
+  initTOC();
+  document.addEventListener("astro:after-swap", initTOC);
+</script>

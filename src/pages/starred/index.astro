@@ -1,0 +1,111 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PostCard from '../../components/PostCard.astro';
+import { getCollection } from 'astro:content';
+
+const allWriteups = (await getCollection('writeups')).filter(post => !post.data.draft && post.data.starred);
+const allNotes = (await getCollection('notes')).filter(post => !post.data.draft && post.data.starred);
+
+const allPosts = [...allWriteups, ...allNotes].sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+const starredStats = {
+  total: allPosts.length,
+  writeups: allWriteups.length,
+  notes: allNotes.length
+};
+---
+
+<BaseLayout title="Starred">
+  <div class="px-8 py-8 max-w-6xl mx-auto h-full flex flex-col">
+    <!-- Vault Header -->
+    <div class="flex items-center justify-between mb-8 pb-4 border-b border-border-subtle">
+      <div class="flex items-center gap-3">
+        <div class="text-[#f59e0b]">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </div>
+        <h1 class="text-3xl font-bold text-text-primary">Starred</h1>
+      </div>
+      <div class="text-xs font-mono text-text-muted">
+        {starredStats.total} Starred Nodes
+      </div>
+    </div>
+
+    <!-- Interactive Tabs -->
+    <div class="flex gap-4 mb-8">
+      <button id="tab-all" class="star-tab active px-4 py-2 rounded-lg text-sm font-bold bg-bg-elevated text-text-primary border border-[#f59e0b] transition-all">
+        All <span class="ml-2 text-xs opacity-70">({starredStats.total})</span>
+      </button>
+      <button id="tab-writeups" class="star-tab px-4 py-2 rounded-lg text-sm font-bold bg-bg-secondary text-text-muted border border-border-subtle hover:border-[#4edea3] hover:text-[#4edea3] transition-all">
+        Writeups <span class="ml-2 text-xs opacity-70">({starredStats.writeups})</span>
+      </button>
+      <button id="tab-notes" class="star-tab px-4 py-2 rounded-lg text-sm font-bold bg-bg-secondary text-text-muted border border-border-subtle hover:border-[#00dbe7] hover:text-[#00dbe7] transition-all">
+        Notes <span class="ml-2 text-xs opacity-70">({starredStats.notes})</span>
+      </button>
+    </div>
+
+    <!-- Notes Grid -->
+    <div id="posts-grid" class="grid grid-cols-1 gap-4 pb-12">
+      {allPosts.map(post => {
+        const collectionName = post.collection || (allWriteups.find(w => w.id === post.id) ? 'writeups' : 'notes');
+        
+        return (
+          <div class="post-wrapper block" data-collection={collectionName}>
+            <PostCard
+              title={post.data.title}
+              description={post.data.description}
+              date={post.data.date}
+              tags={post.data.tags}
+              slug={post.id}
+              category={post.data.category}
+              collection={collectionName as "writeups" | "notes"}
+            />
+          </div>
+        );
+      })}
+      
+      {allPosts.length === 0 && (
+        <div class="col-span-1 py-12 text-center text-text-muted border border-dashed border-border-subtle rounded-lg">
+          No starred items found. Add `starred: true` to the frontmatter of your Markdown files.
+        </div>
+      )}
+    </div>
+  </div>
+
+  <script>
+    const tabs = document.querySelectorAll('.star-tab');
+    const posts = document.querySelectorAll('.post-wrapper');
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', (e) => {
+        // Reset tabs
+        tabs.forEach(t => {
+          t.classList.remove('active', 'bg-bg-elevated', 'text-text-primary', 'border-[#f59e0b]', 'border-[#4edea3]', 'border-[#00dbe7]');
+          t.classList.add('bg-bg-secondary', 'text-text-muted', 'border-border-subtle');
+        });
+
+        // Activate clicked tab
+        const target = e.currentTarget as HTMLElement;
+        target.classList.remove('bg-bg-secondary', 'text-text-muted', 'border-border-subtle');
+        target.classList.add('active', 'bg-bg-elevated', 'text-text-primary');
+
+        const id = target.id;
+        if (id === 'tab-all') target.classList.add('border-[#f59e0b]');
+        else if (id === 'tab-writeups') target.classList.add('border-[#4edea3]');
+        else target.classList.add('border-[#00dbe7]');
+
+        // Filter items
+        posts.forEach((item: HTMLElement) => {
+          const col = item.dataset.collection;
+
+          if (id === 'tab-all') {
+            item.style.display = 'block';
+          } else if (id === 'tab-writeups') {
+            item.style.display = col === 'writeups' ? 'block' : 'none';
+          } else if (id === 'tab-notes') {
+            item.style.display = col === 'notes' ? 'block' : 'none';
+          }
+        });
+      });
+    });
+  </script>
+</BaseLayout>

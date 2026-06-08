@@ -1,0 +1,157 @@
+---
+import ThemeToggle from "./ThemeToggle.astro";
+
+const currentPath = Astro.url.pathname;
+
+const navLinks = [
+  { label: "Home", href: "/ctf-writeups/" },
+  { label: "Writeups", href: "/ctf-writeups/writeups/" },
+  { label: "Notes", href: "/ctf-writeups/notes/" },
+  { label: "Tags", href: "/ctf-writeups/tags/" },
+  { label: "About", href: "/ctf-writeups/about/" },
+];
+
+function isActive(href: string): boolean {
+  if (href === "/ctf-writeups/") {
+    return currentPath === "/ctf-writeups/" || currentPath === "/ctf-writeups";
+  }
+  return currentPath.startsWith(href);
+}
+---
+
+<header
+  class="fixed top-0 left-0 right-0 z-50 border-b border-border/40"
+>
+  <!-- Gradient border accent line -->
+  <div class="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#00dbe7]/30 to-transparent"></div>
+
+  <nav class="bg-bg-primary/80 backdrop-blur-xl">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <!-- Logo -->
+        <a
+          href="/ctf-writeups/"
+          class="flex items-center gap-2 text-lg font-bold font-[Geist] tracking-wider transition-opacity duration-200 hover:opacity-80"
+        >
+          <span class="text-xl bg-gradient-to-r from-[#00dbe7] to-[#4edea3] bg-clip-text text-transparent">
+            CTF_JOURNEY
+          </span>
+        </a>
+
+        <!-- Desktop Nav Links -->
+        <div class="hidden md:flex items-center gap-1">
+          {navLinks.map((link) => (
+            <a
+              href={link.href}
+              class:list={[
+                "relative px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200",
+                isActive(link.href)
+                  ? "text-[#00dbe7] bg-[#00dbe7]/10"
+                  : "text-text-muted hover:text-text-primary hover:bg-[#dae2fd]/5",
+              ]}
+            >
+              {link.label}
+              {isActive(link.href) && (
+                <span class="absolute bottom-0 left-1/2 -translate-x-1/2 w-4 h-0.5 bg-[#00dbe7] rounded-full" />
+              )}
+            </a>
+          ))}
+        </div>
+
+        <!-- Right side: Theme Toggle + Mobile Menu Button -->
+        <div class="flex items-center gap-2">
+          <ThemeToggle />
+
+          <!-- Mobile hamburger -->
+          <button
+            id="mobile-menu-btn"
+            type="button"
+            aria-label="Toggle mobile menu"
+            aria-expanded="false"
+            class="md:hidden flex items-center justify-center w-10 h-10 rounded-lg border border-border bg-bg-secondary/60 text-text-muted transition-all duration-200 hover:text-text-primary hover:border-[#00dbe7]/40 cursor-pointer"
+          >
+            <!-- Hamburger icon -->
+            <svg id="hamburger-icon" class="w-5 h-5 transition-all duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+            <!-- Close icon -->
+            <svg id="close-icon" class="w-5 h-5 hidden transition-all duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Dropdown Menu -->
+    <div
+      id="mobile-menu"
+      class="md:hidden hidden overflow-hidden transition-all duration-300 ease-out"
+    >
+      <div class="px-4 pb-4 pt-2 space-y-1 border-t border-border/30 bg-bg-primary/95 backdrop-blur-xl">
+        {navLinks.map((link) => (
+          <a
+            href={link.href}
+            class:list={[
+              "block px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200",
+              isActive(link.href)
+                ? "text-[#00dbe7] bg-[#00dbe7]/10 border-l-2 border-[#00dbe7]"
+                : "text-text-muted hover:text-text-primary hover:bg-[#dae2fd]/5",
+            ]}
+          >
+            {link.label}
+          </a>
+        ))}
+      </div>
+    </div>
+  </nav>
+</header>
+
+<!-- Spacer to prevent content from hiding behind fixed navbar -->
+<div class="h-16"></div>
+
+<script>
+  function initMobileMenu() {
+    const btn = document.getElementById("mobile-menu-btn");
+    const menu = document.getElementById("mobile-menu");
+    const hamburgerIcon = document.getElementById("hamburger-icon");
+    const closeIcon = document.getElementById("close-icon");
+    if (!btn || !menu || !hamburgerIcon || !closeIcon) return;
+
+    let isOpen = false;
+
+    btn.addEventListener("click", () => {
+      isOpen = !isOpen;
+      btn.setAttribute("aria-expanded", String(isOpen));
+
+      if (isOpen) {
+        menu.classList.remove("hidden");
+        menu.style.maxHeight = menu.scrollHeight + "px";
+        hamburgerIcon.classList.add("hidden");
+        closeIcon.classList.remove("hidden");
+      } else {
+        menu.style.maxHeight = "0px";
+        hamburgerIcon.classList.remove("hidden");
+        closeIcon.classList.add("hidden");
+        setTimeout(() => {
+          if (!isOpen) menu.classList.add("hidden");
+        }, 300);
+      }
+    });
+
+    // Close menu on link click
+    menu.querySelectorAll("a").forEach((link) => {
+      link.addEventListener("click", () => {
+        isOpen = false;
+        btn.setAttribute("aria-expanded", "false");
+        menu.style.maxHeight = "0px";
+        hamburgerIcon.classList.remove("hidden");
+        closeIcon.classList.add("hidden");
+        setTimeout(() => menu.classList.add("hidden"), 300);
+      });
+    });
+  }
+
+  initMobileMenu();
+  document.addEventListener("astro:after-swap", initMobileMenu);
+</script>

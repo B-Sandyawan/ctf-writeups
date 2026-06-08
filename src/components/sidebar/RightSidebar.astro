@@ -1,0 +1,87 @@
+---
+import { getCollection } from 'astro:content';
+
+const allWriteups = await getCollection('writeups');
+const allNotes = await getCollection('notes');
+ // will create soon
+
+const allPosts = [...allWriteups, ...allNotes, ].filter(p => !p?.data?.draft);
+const sortedPosts = allPosts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+// Get unique tags and count them
+const tagCounts = new Map<string, number>();
+allPosts.forEach(post => {
+  if (post.data.tags) {
+    post.data.tags.forEach(tag => {
+      tagCounts.set(tag, (tagCounts.get(tag) || 0) + 1);
+    });
+  }
+});
+
+// Sort tags by frequency
+const topTags = Array.from(tagCounts.entries())
+  .sort((a, b) => b[1] - a[1])
+  .slice(0, 10)
+  .map(entry => entry[0]);
+
+// Recent 3 posts
+const recentActivity = sortedPosts.slice(0, 3);
+
+// Helper to get relative time
+function getRelativeTime(date: Date) {
+  const rtf = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
+  const daysDifference = Math.round((date.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+  
+  if (Math.abs(daysDifference) < 1) {
+    const hours = Math.round((date.getTime() - new Date().getTime()) / (1000 * 60 * 60));
+    if (Math.abs(hours) < 1) return 'just now';
+    return rtf.format(hours, 'hour');
+  }
+  return rtf.format(daysDifference, 'day');
+}
+
+---
+<aside class="hidden lg:flex w-[320px] h-screen bg-bg-primary border-l border-border-subtle flex-col shrink-0">
+  <div class="flex-1 overflow-y-auto p-6 space-y-8">
+    
+    <!-- Active Tags -->
+    <section>
+      <h3 class="text-xs font-bold tracking-[0.2em] text-text-muted mb-4 uppercase border-b border-border-subtle pb-2">Active Tags</h3>
+      <div class="flex flex-wrap gap-2">
+        {topTags.map(tag => (
+          <a href={`/ctf-writeups/tags/${tag}`} class="px-2 py-1 text-xs border border-border-subtle text-text-muted hover:text-text-primary hover:border-[#dae2fd]/50 rounded bg-bg-secondary transition-colors">
+            #{tag}
+          </a>
+        ))}
+        {topTags.length === 0 && <span class="text-xs text-text-dim">No tags found.</span>}
+      </div>
+    </section>
+
+    <!-- Recent Activity -->
+    <section>
+      <h3 class="text-xs font-bold tracking-[0.2em] text-text-muted mb-4 uppercase border-b border-border-subtle pb-2">Recent Activity</h3>
+      <div class="space-y-4">
+        
+        {recentActivity.map(post => {
+          // Determine the icon color based on collection roughly
+          const iconColor = allWriteups.find(w => w.id === post.id) ? 'text-[#4edea3]' : 'text-[#00dbe7]';
+          return (
+            <div class="flex gap-3">
+              <div class={`mt-0.5 ${iconColor}`}>
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+              </div>
+              <div>
+                <a href={`/ctf-writeups/${post.collection || 'notes'}/${post.id}`} class="text-sm text-text-primary hover:text-[#00dbe7] transition-colors line-clamp-2">
+                  {post.data.title}
+                </a>
+                <p class="text-[10px] text-text-dim">{getRelativeTime(post.data.date)}</p>
+              </div>
+            </div>
+          )
+        })}
+
+        {recentActivity.length === 0 && <span class="text-xs text-text-dim">No recent activity.</span>}
+      </div>
+    </section>
+  </div>
+</aside>

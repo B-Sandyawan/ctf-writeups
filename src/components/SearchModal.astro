@@ -1,0 +1,269 @@
+---
+import { getCollection } from 'astro:content';
+
+const allWriteups = await getCollection('writeups');
+const allNotes = await getCollection('notes');
+
+const allPosts = [...allWriteups, ...allNotes]
+  .filter(p => !p?.data?.draft)
+  .map(post => {
+    const collectionName = post.collection || (allWriteups.find(w => w.id === post.id) ? 'writeups' : 'notes');
+    return {
+      id: post.id,
+      title: post.data.title,
+      description: post.data.description || '',
+      tags: post.data.tags || [],
+      collection: collectionName,
+      url: `/ctf-writeups/${collectionName}/${post.id}/`
+    };
+  });
+
+// Extract all unique tags
+const allTags = new Set<string>();
+allPosts.forEach(post => post.tags.forEach(t => allTags.add(t)));
+const tagsArray = Array.from(allTags).map(t => ({
+  type: 'tag',
+  title: `#${t}`,
+  url: `/ctf-writeups/tags/${t}`
+}));
+
+// Provide default recent items (just the first 5 posts)
+const recentPosts = allPosts
+  // Sort descending by date, though here we didn't add date to the map. Let's just use first 5.
+  .slice(0, 5)
+  .map(p => ({
+  type: 'post',
+  ...p
+}));
+
+const searchData = {
+  posts: allPosts,
+  tags: tagsArray,
+  recent: recentPosts
+};
+---
+
+<div id="search-modal" class="fixed inset-0 z-50 hidden bg-bg-primary/80 backdrop-blur-sm items-center justify-center p-4 opacity-0 transition-opacity duration-200">
+  <div class="bg-bg-secondary border border-border-subtle rounded-xl shadow-2xl w-full max-w-4xl overflow-hidden flex flex-col max-h-[80vh] transform scale-95 transition-transform duration-200" id="search-container">
+    
+    <!-- Input Header -->
+    <div class="flex items-center px-4 py-4 border-b border-border-subtle">
+      <svg class="text-[#00dbe7] mr-3" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="text" id="search-input" placeholder="Search notes, writeups, or #tags..." class="flex-1 bg-transparent border-none outline-none focus:outline-none focus-visible:outline-none text-text-primary text-lg placeholder:text-text-dim" autocomplete="off" spellcheck="false" />
+      <button id="search-close" class="text-text-muted hover:text-text-primary ml-3 border border-border-subtle bg-bg-tertiary px-2 py-1 rounded text-xs font-mono">ESC</button>
+    </div>
+
+    <!-- Scope Filters -->
+    <div class="flex items-center gap-2 px-4 py-2 border-b border-border-subtle bg-bg-primary/50">
+      <button class="search-scope-btn active px-3 py-1 text-xs rounded border border-[#00dbe7] text-[#00dbe7] bg-[#00dbe7]/10" data-scope="all">Vault</button>
+      <button class="search-scope-btn px-3 py-1 text-xs rounded border border-border-subtle text-text-muted hover:text-text-primary transition-colors" data-scope="writeups">Writeups</button>
+      <button class="search-scope-btn px-3 py-1 text-xs rounded border border-border-subtle text-text-muted hover:text-text-primary transition-colors" data-scope="notes">Notes</button>
+    </div>
+
+    <!-- Results Area -->
+    <div id="search-results" class="flex-1 overflow-y-auto p-2">
+      <!-- Dynamic content will be injected here -->
+    </div>
+  </div>
+</div>
+
+<script define:vars={{ searchData }}>
+  const modal = document.getElementById('search-modal');
+  const container = document.getElementById('search-container');
+  const input = document.getElementById('search-input');
+  const resultsContainer = document.getElementById('search-results');
+  const closeBtn = document.getElementById('search-close');
+  const scopeBtns = document.querySelectorAll('.search-scope-btn');
+  
+  let isOpen = false;
+  let activeIndex = -1;
+  let currentResults = [];
+  let currentScope = 'all';
+
+  scopeBtns.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      // Update UI
+      scopeBtns.forEach(b => {
+        b.classList.remove('border-[#00dbe7]', 'text-[#00dbe7]', 'bg-[#00dbe7]/10');
+        b.classList.add('border-border-subtle', 'text-text-muted');
+      });
+      const target = e.currentTarget;
+      target.classList.remove('border-border-subtle', 'text-text-muted');
+      target.classList.add('border-[#00dbe7]', 'text-[#00dbe7]', 'bg-[#00dbe7]/10');
+      
+      // Update logic
+      currentScope = target.dataset.scope;
+      performSearch(input.value.toLowerCase());
+      input.focus();
+    });
+  });
+
+  // Initialize with recent data
+  function renderRecent() {
+    let filteredTags = searchData.tags;
+    let filteredPosts = searchData.recent;
+
+    if (currentScope !== 'all') {
+      // We don't filter tags by scope in recent easily without more data, so we just show posts
+      filteredPosts = searchData.posts.filter(p => p.collection === currentScope).slice(0, 5).map(p => ({ type: 'post', ...p }));
+      filteredTags = [];
+    }
+
+    currentResults = [...filteredTags.slice(0, 5), ...filteredPosts];
+    renderResults(currentResults, 'Recent & Tags');
+  }
+
+  function toggleModal(force) {
+    isOpen = force !== undefined ? force : !isOpen;
+    if (isOpen) {
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      void modal.offsetWidth;
+      modal.classList.remove('opacity-0');
+      container.classList.remove('scale-95');
+      input.value = '';
+      input.focus();
+      renderRecent();
+    } else {
+      modal.classList.add('opacity-0');
+      container.classList.add('scale-95');
+      setTimeout(() => {
+        modal.classList.remove('flex');
+        modal.classList.add('hidden');
+      }, 200);
+    }
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      e.preventDefault();
+      toggleModal(true);
+    }
+    if (e.key === 'Escape' && isOpen) {
+      toggleModal(false);
+    }
+    
+    if (isOpen && currentResults.length > 0) {
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        activeIndex = (activeIndex + 1) % currentResults.length;
+        updateHighlight();
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        activeIndex = (activeIndex - 1 + currentResults.length) % currentResults.length;
+        updateHighlight();
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        if (activeIndex >= 0 && currentResults[activeIndex]) {
+          window.location.href = currentResults[activeIndex].url;
+        }
+      }
+    }
+  });
+
+  closeBtn.addEventListener('click', () => toggleModal(false));
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) toggleModal(false);
+  });
+
+  window.openSearchModal = () => toggleModal(true);
+
+  function performSearch(query) {
+    if (!query) {
+      renderRecent();
+      return;
+    }
+
+    const isTagSearch = query.startsWith('#');
+    let results = [];
+
+    let availablePosts = searchData.posts;
+    if (currentScope !== 'all') {
+      availablePosts = availablePosts.filter(p => p.collection === currentScope);
+    }
+
+    if (isTagSearch) {
+      const tagQuery = query.substring(1);
+      results = searchData.tags.filter(t => t.title.toLowerCase().includes(tagQuery));
+      // Optionally filter tags by scope if we had that mapping, but let's keep all tags for tag search
+    } else {
+      const posts = availablePosts.filter(p => 
+        p.title.toLowerCase().includes(query) || 
+        p.description.toLowerCase().includes(query) ||
+        p.tags.some(t => t.toLowerCase().includes(query))
+      ).map(p => ({ type: 'post', ...p }));
+      
+      let tags = searchData.tags.filter(t => t.title.toLowerCase().includes(query));
+      if (currentScope !== 'all') tags = []; // Hide tags in specific scopes to avoid confusion, or keep them. Let's keep them if they match.
+      
+      results = [...tags, ...posts];
+    }
+
+    currentResults = results;
+    renderResults(results, 'Search Results');
+  }
+
+  input.addEventListener('input', (e) => {
+    performSearch(e.target.value.toLowerCase());
+  });
+
+  function renderResults(results, heading) {
+    activeIndex = results.length > 0 ? 0 : -1;
+    
+    if (results.length === 0) {
+      resultsContainer.innerHTML = `
+        <div class="p-8 text-center text-text-dim">
+          <p>No results found in ${currentScope === 'all' ? 'Vault' : currentScope}.</p>
+        </div>
+      `;
+      return;
+    }
+
+    let html = `<div class="px-3 py-2 text-xs font-semibold text-text-dim uppercase tracking-wider">${heading}</div>`;
+    
+    html += results.map((res, idx) => {
+      if (res.type === 'tag') {
+        return `
+          <a href="${res.url}" class="search-result-item flex items-center px-3 py-3 rounded-lg hover:bg-bg-elevated transition-colors" data-idx="${idx}">
+            <svg class="text-text-muted mr-3" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+            <span class="text-text-primary font-medium">${res.title}</span>
+          </a>
+        `;
+      } else {
+        const iconColor = res.collection === 'writeups' ? 'text-[#4edea3]' : 'text-[#00dbe7]';
+        return `
+          <a href="${res.url}" class="search-result-item flex flex-col px-3 py-3 rounded-lg hover:bg-bg-elevated transition-colors" data-idx="${idx}">
+            <div class="flex items-center mb-1">
+              <svg class="${iconColor} mr-3 shrink-0" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              <span class="text-text-primary font-medium truncate">${res.title}</span>
+            </div>
+            ${res.description ? `<p class="text-xs text-text-muted line-clamp-1 ml-7">${res.description}</p>` : ''}
+          </a>
+        `;
+      }
+    }).join('');
+
+    resultsContainer.innerHTML = html;
+    updateHighlight();
+    
+    document.querySelectorAll('.search-result-item').forEach(el => {
+      el.addEventListener('mouseenter', (e) => {
+        activeIndex = parseInt(e.currentTarget.dataset.idx);
+        updateHighlight();
+      });
+    });
+  }
+
+  function updateHighlight() {
+    const items = document.querySelectorAll('.search-result-item');
+    items.forEach((item, idx) => {
+      if (idx === activeIndex) {
+        item.classList.add('bg-bg-elevated');
+        item.classList.remove('bg-transparent');
+        item.scrollIntoView({ block: 'nearest' });
+      } else {
+        item.classList.remove('bg-bg-elevated');
+      }
+    });
+  }
+</script>

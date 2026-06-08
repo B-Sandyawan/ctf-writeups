@@ -1,0 +1,65 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PostCard from '../components/PostCard.astro';
+import SearchBar from '../components/SearchBar.astro';
+import { getCollection } from 'astro:content';
+
+const allWriteups = (await getCollection('writeups'))
+  .filter(post => !post.data.draft);
+
+const allNotes = (await getCollection('notes'))
+  .filter(post => !post.data.draft);
+
+// Combine and sort by date descending
+const allPosts = [...allWriteups, ...allNotes].sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+const nodeCount = allPosts.length;
+---
+
+<BaseLayout title="Intelligence Vault">
+  <div class="px-8 py-8 max-w-6xl mx-auto h-full flex flex-col">
+    <!-- Search Bar -->
+    <div class="mb-12">
+      <SearchBar />
+    </div>
+
+    <!-- Vault Header -->
+    <div class="flex items-center justify-between mb-8 pb-4 border-b border-border-subtle">
+      <div class="flex items-center gap-3">
+        <div class="text-[#00dbe7]">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <h1 class="text-3xl font-bold text-text-primary">Vault</h1>
+      </div>
+      <div class="text-xs font-mono text-text-muted">
+        {nodeCount} Nodes <span class="text-[#00dbe7] px-1">•</span> Updated 2m ago
+      </div>
+    </div>
+
+    <!-- Notes Grid -->
+    <div class="grid grid-cols-1 gap-4 pb-12">
+      {allPosts.map(post => {
+        // Determine collection by checking if it exists in writeups or notes
+        // Note: content collection entries have `collection` property in Astro v2+, but let's be safe
+        const collectionName = post.collection || (allWriteups.find(w => w.id === post.id) ? 'writeups' : 'notes');
+        
+        return (
+          <PostCard
+            title={post.data.title}
+            description={post.data.description}
+            date={post.data.date}
+            tags={post.data.tags}
+            slug={post.id}
+            category={post.data.category}
+            collection={collectionName as "writeups" | "notes"}
+          />
+        );
+      })}
+      
+      {allPosts.length === 0 && (
+        <div class="col-span-1 md:col-span-2 py-12 text-center text-text-muted border border-dashed border-border-subtle rounded-lg">
+          No entries found in the vault.
+        </div>
+      )}
+    </div>
+  </div>
+</BaseLayout>

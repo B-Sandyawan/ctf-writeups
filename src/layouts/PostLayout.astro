@@ -1,0 +1,314 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import TagBadge from '../components/TagBadge.astro';
+import TableOfContents from '../components/TableOfContents.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  date: Date;
+  updated?: Date;
+  tags: string[];
+  platform?: string;
+  difficulty?: string;
+  category?: string;
+  collection: 'writeups' | 'notes';
+  headings: { depth: number; slug: string; text: string }[];
+}
+
+const {
+  title,
+  description,
+  date,
+  updated,
+  tags,
+  platform,
+  difficulty,
+  category,
+  collection,
+  headings,
+} = Astro.props;
+
+const BASE = '/ctf-writeups';
+
+// Format dates
+const formatDate = (d: Date) =>
+  d.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+
+const formattedDate = formatDate(date);
+const formattedUpdated = updated ? formatDate(updated) : null;
+const showUpdated =
+  formattedUpdated && formattedUpdated !== formattedDate;
+
+// Collection label
+const collectionLabel = collection === 'writeups' ? 'Writeups' : 'Notes';
+
+// Difficulty color mapping
+const difficultyColors: Record<string, string> = {
+  easy: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30',
+  medium: 'bg-amber-500/15 text-amber-400 border-amber-500/30',
+  hard: 'bg-red-500/15 text-red-400 border-red-500/30',
+  insane: 'bg-purple-500/15 text-purple-400 border-purple-500/30',
+};
+
+const difficultyClass = difficulty
+  ? difficultyColors[difficulty.toLowerCase()] ||
+    'bg-[#00dbe7]/10 text-[#00dbe7] border-[#00dbe7]/30'
+  : '';
+---
+
+<BaseLayout title={`${title} — CTF_JOURNEY`} description={description}>
+  <article class="w-full">
+    <!-- ─── Breadcrumb ─── -->
+    <nav
+      aria-label="Breadcrumb"
+      class="flex items-center gap-2 text-sm text-text-muted mb-6 font-sans"
+    >
+      <a
+        href={`${BASE}/`}
+        class="hover:text-[#00dbe7] transition-colors duration-200"
+      >
+        Home
+      </a>
+      <span class="text-[#3a494b]">/</span>
+      <a
+        href={`${BASE}/${collection}/`}
+        class="hover:text-[#00dbe7] transition-colors duration-200"
+      >
+        {collectionLabel}
+      </a>
+      <span class="text-[#3a494b]">/</span>
+      <span class="text-text-primary truncate max-w-[200px] sm:max-w-none">
+        {title}
+      </span>
+    </nav>
+
+    <!-- ─── Article Header ─── -->
+    <header class="mb-10">
+      <!-- Title -->
+      <h1
+        class="text-3xl sm:text-4xl lg:text-5xl font-heading font-extrabold leading-tight mb-5 bg-gradient-to-r from-[#00dbe7] via-[#dae2fd] to-[#4edea3] bg-clip-text text-transparent"
+      >
+        {title}
+      </h1>
+
+      <!-- Description -->
+      {
+        description && (
+          <p class="text-lg text-text-muted leading-relaxed mb-6 max-w-3xl">
+            {description}
+          </p>
+        )
+      }
+
+      <!-- Meta Row -->
+      <div class="flex flex-wrap items-center gap-3 text-sm mb-5">
+        <!-- Date -->
+        <div
+          class="flex items-center gap-1.5 text-text-muted"
+          title="Published date"
+        >
+          <svg
+            class="w-4 h-4 text-[#00dbe7]/70"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+            ></path>
+          </svg>
+          <time datetime={date.toISOString()}>{formattedDate}</time>
+        </div>
+
+        <!-- Updated Date -->
+        {
+          showUpdated && (
+            <div
+              class="flex items-center gap-1.5 text-text-muted"
+              title="Last updated"
+            >
+              <svg
+                class="w-4 h-4 text-[#4edea3]/70"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                />
+              </svg>
+              <span>
+                Updated{' '}
+                <time datetime={updated!.toISOString()}>
+                  {formattedUpdated}
+                </time>
+              </span>
+            </div>
+          )
+        }
+
+        <!-- Divider -->
+        <span class="hidden sm:inline-block w-px h-4 bg-[#3a494b]"></span>
+
+        <!-- Platform Badge -->
+        {
+          platform && (
+            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-[#00dbe7]/10 text-[#00dbe7] border border-[#00dbe7]/20 font-medium text-xs uppercase tracking-wide">
+              {platform}
+            </span>
+          )
+        }
+
+        <!-- Difficulty Badge -->
+        {
+          difficulty && (
+            <span
+              class:list={[
+                'inline-flex items-center gap-1 px-2.5 py-1 rounded-md border font-medium text-xs uppercase tracking-wide',
+                difficultyClass,
+              ]}
+            >
+              {difficulty}
+            </span>
+          )
+        }
+
+        <!-- Category -->
+        {
+          category && (
+            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-[#4edea3]/10 text-[#4edea3] border border-[#4edea3]/20 font-medium text-xs uppercase tracking-wide">
+              {category}
+            </span>
+          )
+        }
+      </div>
+
+      <!-- Tags -->
+      {
+        tags && tags.length > 0 && (
+          <div class="flex flex-wrap gap-2">
+            {tags.map((tag) => (
+              <TagBadge tag={tag} />
+            ))}
+          </div>
+        )
+      }
+
+      <!-- Header Divider -->
+      <div
+        class="mt-8 h-px bg-gradient-to-r from-transparent via-[#3a494b] to-transparent"
+      >
+      </div>
+    </header>
+
+    <!-- ─── Content Area: Two-Column Layout ─── -->
+    <div class="flex flex-col lg:flex-row gap-10 lg:gap-12">
+      <!-- Main Content -->
+      <div class="flex-1 min-w-0">
+        <div class="prose max-w-none">
+          <slot />
+        </div>
+      </div>
+
+      <!-- Sidebar: Table of Contents (Desktop) -->
+      <aside class="hidden lg:block w-64 xl:w-72 shrink-0">
+        <div class="sticky top-24">
+          <TableOfContents headings={headings} />
+        </div>
+      </aside>
+    </div>
+
+    <!-- ─── Mobile Table of Contents (Collapsible) ─── -->
+    <div class="lg:hidden mt-8">
+      <details
+        class="group rounded-lg border border-border/40 bg-bg-secondary/60 backdrop-blur-sm"
+      >
+        <summary
+          class="flex items-center justify-between cursor-pointer px-4 py-3 text-sm font-heading font-semibold text-text-primary select-none"
+        >
+          <span class="flex items-center gap-2">
+            <svg
+              class="w-4 h-4 text-[#00dbe7]"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M4 6h16M4 12h16M4 18h7"></path>
+            </svg>
+            Table of Contents
+          </span>
+          <svg
+            class="w-4 h-4 text-text-muted transition-transform duration-200 group-open:rotate-180"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M19 9l-7 7-7-7"></path>
+          </svg>
+        </summary>
+        <div class="px-4 pb-4">
+          <TableOfContents headings={headings} />
+        </div>
+      </details>
+    </div>
+
+    <!-- ─── Post Footer ─── -->
+    <div
+      class="mt-16 h-px bg-gradient-to-r from-transparent via-[#3a494b] to-transparent"
+    >
+    </div>
+
+    <!-- Previous / Next Navigation -->
+    <nav
+      aria-label="Post navigation"
+      class="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4"
+    >
+      <!-- Previous Post (placeholder slot) -->
+      <div
+        class="group flex flex-col p-4 rounded-lg border border-border/40 bg-bg-secondary/40 hover:bg-bg-secondary/70 hover:border-[#00dbe7]/30 transition-all duration-300"
+      >
+        <span class="text-xs text-text-muted uppercase tracking-wide mb-1">
+          ← Previous
+        </span>
+        <span
+          class="text-sm font-heading font-semibold text-text-primary group-hover:text-[#00dbe7] transition-colors duration-200 line-clamp-1"
+        >
+          &nbsp;
+        </span>
+      </div>
+
+      <!-- Next Post (placeholder slot) -->
+      <div
+        class="group flex flex-col items-end text-right p-4 rounded-lg border border-border/40 bg-bg-secondary/40 hover:bg-bg-secondary/70 hover:border-[#4edea3]/30 transition-all duration-300"
+      >
+        <span class="text-xs text-text-muted uppercase tracking-wide mb-1">
+          Next →
+        </span>
+        <span
+          class="text-sm font-heading font-semibold text-text-primary group-hover:text-[#4edea3] transition-colors duration-200 line-clamp-1"
+        >
+          &nbsp;
+        </span>
+      </div>
+    </nav>
+  </article>
+</BaseLayout>
