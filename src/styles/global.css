@@ -457,19 +457,15 @@ a:hover {
 
 /* Force dark theme for Shiki in dark mode */
 html.dark .astro-code,
-html.dark .shiki,
-.astro-code,
-.shiki {
-  background-color: #0d1117 !important;
+html.dark .shiki {
+  background-color: var(--shiki-dark-bg, #0d1117) !important;
+  color: var(--shiki-dark) !important;
 }
 
-/* Dual theme support — hide light code in dark mode */
-html.dark .shiki.github-light {
-  display: none !important;
-}
-
-html:not(.dark) .shiki.github-dark {
-  display: none !important;
+html.dark .astro-code span,
+html.dark .shiki span {
+  color: var(--shiki-dark) !important;
+  background-color: var(--shiki-dark-bg) !important;
 }
 
 /* ── Prose Blockquotes ─────────────────────────────────────── */
@@ -502,10 +498,11 @@ html:not(.dark) .shiki.github-dark {
 /* ── Prose Tables ──────────────────────────────────────────── */
 .prose table {
   width: 100%;
+  display: block;
+  overflow-x: auto;
   border-collapse: collapse;
   margin: 1.5rem 0;
   font-size: 0.925rem;
-  overflow: hidden;
   border-radius: 12px;
   border: 1px solid var(--color-border-subtle);
 }
@@ -566,6 +563,8 @@ html:not(.dark) .shiki.github-dark {
   box-shadow: var(--shadow-card);
   margin: 1.5rem auto;
   display: block;
+  max-width: 100%;
+  height: auto;
   transition: box-shadow 0.3s ease, border-color 0.3s ease;
 }
 
