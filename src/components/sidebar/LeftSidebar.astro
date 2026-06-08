@@ -34,19 +34,19 @@ const isActive = (path: string) => {
 
   <!-- Navigation -->
   <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-1">
-    <a href="/ctf-writeups/" class={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive('/ctf-writeups/') ? 'bg-bg-elevated text-text-primary' : 'text-text-muted hover:bg-bg-elevated/50 hover:text-text-primary'}`}>
+    <a href="/" class={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive('/') ? 'bg-bg-elevated text-text-primary' : 'text-text-muted hover:bg-bg-elevated/50 hover:text-text-primary'}`}>
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
       Vault
     </a>
-    <a href="/ctf-writeups/recent" class={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive('/ctf-writeups/recent') ? 'bg-bg-elevated text-text-primary' : 'text-text-muted hover:bg-bg-elevated/50 hover:text-text-primary'}`}>
+    <a href="/recent" class={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive('/recent') ? 'bg-bg-elevated text-text-primary' : 'text-text-muted hover:bg-bg-elevated/50 hover:text-text-primary'}`}>
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
       Recent
     </a>
-    <a href="/ctf-writeups/tags" class={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive('/ctf-writeups/tags') ? 'bg-bg-elevated text-text-primary' : 'text-text-muted hover:bg-bg-elevated/50 hover:text-text-primary'}`}>
+    <a href="/tags" class={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive('/tags') ? 'bg-bg-elevated text-text-primary' : 'text-text-muted hover:bg-bg-elevated/50 hover:text-text-primary'}`}>
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
       Tags
     </a>
-    <a href="/ctf-writeups/starred" class={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive('/ctf-writeups/starred') ? 'bg-bg-elevated text-text-primary' : 'text-text-muted hover:bg-bg-elevated/50 hover:text-text-primary'}`}>
+    <a href="/starred" class={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive('/starred') ? 'bg-bg-elevated text-text-primary' : 'text-text-muted hover:bg-bg-elevated/50 hover:text-text-primary'}`}>
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
       Starred
     </a>

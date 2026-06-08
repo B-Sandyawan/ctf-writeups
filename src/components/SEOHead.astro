@@ -9,7 +9,7 @@ interface Props {
 const {
   title,
   description = "CTF writeups, notes, and security research",
-  ogImage = "/ctf-writeups/og-default.png",
+  ogImage = "/og-default.png",
   canonicalURL,
 } = Astro.props;
 
@@ -44,7 +44,7 @@ const ogImageURL = ogImage.startsWith("http") ? ogImage : new URL(ogImage, siteU
 <meta name="twitter:image" content={ogImageURL} />
 
 <!-- Favicon -->
-<link rel="icon" type="image/svg+xml" href="/ctf-writeups/favicon.svg" />
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
 <!-- Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com" />

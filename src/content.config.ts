@@ -4,30 +4,30 @@ import { glob } from 'astro/loaders';
 const writeups = defineCollection({
   loader: glob({ pattern: '**/*.{md,mdx}', base: './content/writeups' }),
   schema: z.object({
-    title: z.string(),
-    description: z.string().optional().default(''),
-    date: z.coerce.date(),
-    updated: z.coerce.date().optional(),
-    tags: z.array(z.string()).default([]),
-    platform: z.string().optional().default(''),
-    category: z.string().optional().default(''),
-    difficulty: z.enum(['easy', 'medium', 'hard', 'insane']).optional(),
-    draft: z.boolean().default(false),
-    starred: z.boolean().default(false).optional(),
+    title: z.string().catch('Untitled'),
+    description: z.string().optional().catch(''),
+    date: z.coerce.date().catch(() => new Date()),
+    updated: z.coerce.date().optional().catch(undefined),
+    tags: z.array(z.string()).catch([]),
+    platform: z.string().optional().catch(''),
+    category: z.string().optional().catch(''),
+    difficulty: z.enum(['easy', 'medium', 'hard', 'insane']).optional().catch(undefined),
+    draft: z.boolean().catch(false),
+    starred: z.boolean().catch(false).optional(),
   }),
 });
 
 const notes = defineCollection({
   loader: glob({ pattern: '**/*.{md,mdx}', base: './content/notes' }),
   schema: z.object({
-    title: z.string(),
-    description: z.string().optional().default(''),
-    date: z.coerce.date(),
-    updated: z.coerce.date().optional(),
-    tags: z.array(z.string()).default([]),
-    category: z.string().optional().default(''),
-    draft: z.boolean().default(false),
-    starred: z.boolean().default(false).optional(),
+    title: z.string().catch('Untitled'),
+    description: z.string().optional().catch(''),
+    date: z.coerce.date().catch(() => new Date()),
+    updated: z.coerce.date().optional().catch(undefined),
+    tags: z.array(z.string()).catch([]),
+    category: z.string().optional().catch(''),
+    draft: z.boolean().catch(false),
+    starred: z.boolean().catch(false).optional(),
   }),
 });
 

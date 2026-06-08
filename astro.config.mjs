@@ -5,7 +5,7 @@ import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
   site: 'https://b-sandyawan.github.io',
-  base: '/ctf-writeups',
+  // base: '/ctf-writeups', // Disabled for Vercel deployment
   output: 'static',
   integrations: [mdx(), sitemap()],
   vite: {

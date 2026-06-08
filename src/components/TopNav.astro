@@ -9,13 +9,13 @@ const isActive = (path: string) => {
 <header class="h-14 border-b border-border-subtle flex items-center px-6 shrink-0 bg-bg-primary/95 backdrop-blur-sm sticky top-0 z-10">
   <!-- Main Tabs -->
   <nav class="flex h-full">
-    <a href="/ctf-writeups/" class={`h-full flex items-center px-4 text-sm font-medium border-b-2 transition-colors ${isActive('/ctf-writeups/') && pathname === '/ctf-writeups/' ? 'text-[#00dbe7] border-[#00dbe7]' : 'text-text-muted border-transparent hover:text-text-primary hover:border-border'}`}>
+    <a href="/" class={`h-full flex items-center px-4 text-sm font-medium border-b-2 transition-colors ${isActive('/') && pathname === '/' ? 'text-[#00dbe7] border-[#00dbe7]' : 'text-text-muted border-transparent hover:text-text-primary hover:border-border'}`}>
       Home
     </a>
-    <a href="/ctf-writeups/writeups" class={`h-full flex items-center px-4 text-sm font-medium border-b-2 transition-colors ${isActive('/ctf-writeups/writeups') ? 'text-[#00dbe7] border-[#00dbe7]' : 'text-text-muted border-transparent hover:text-text-primary hover:border-border'}`}>
+    <a href="/writeups" class={`h-full flex items-center px-4 text-sm font-medium border-b-2 transition-colors ${isActive('/writeups') ? 'text-[#00dbe7] border-[#00dbe7]' : 'text-text-muted border-transparent hover:text-text-primary hover:border-border'}`}>
       Writeups
     </a>
-    <a href="/ctf-writeups/notes" class={`h-full flex items-center px-4 text-sm font-medium border-b-2 transition-colors ${isActive('/ctf-writeups/notes') ? 'text-[#00dbe7] border-[#00dbe7]' : 'text-text-muted border-transparent hover:text-text-primary hover:border-border'}`}>
+    <a href="/notes" class={`h-full flex items-center px-4 text-sm font-medium border-b-2 transition-colors ${isActive('/notes') ? 'text-[#00dbe7] border-[#00dbe7]' : 'text-text-muted border-transparent hover:text-text-primary hover:border-border'}`}>
       Notes
     </a>
   </nav>

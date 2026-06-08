@@ -4,16 +4,16 @@ import ThemeToggle from "./ThemeToggle.astro";
 const currentPath = Astro.url.pathname;
 
 const navLinks = [
-  { label: "Home", href: "/ctf-writeups/" },
-  { label: "Writeups", href: "/ctf-writeups/writeups/" },
-  { label: "Notes", href: "/ctf-writeups/notes/" },
-  { label: "Tags", href: "/ctf-writeups/tags/" },
-  { label: "About", href: "/ctf-writeups/about/" },
+  { label: "Home", href: "/" },
+  { label: "Writeups", href: "/writeups/" },
+  { label: "Notes", href: "/notes/" },
+  { label: "Tags", href: "/tags/" },
+  { label: "About", href: "/about/" },
 ];
 
 function isActive(href: string): boolean {
-  if (href === "/ctf-writeups/") {
-    return currentPath === "/ctf-writeups/" || currentPath === "/ctf-writeups";
+  if (href === "/") {
+    return currentPath === "/" || currentPath === "";
   }
   return currentPath.startsWith(href);
 }
@@ -30,7 +30,7 @@ function isActive(href: string): boolean {
       <div class="flex items-center justify-between h-16">
         <!-- Logo -->
         <a
-          href="/ctf-writeups/"
+          href="/"
           class="flex items-center gap-2 text-lg font-bold font-[Geist] tracking-wider transition-opacity duration-200 hover:opacity-80"
         >
           <span class="text-xl bg-gradient-to-r from-[#00dbe7] to-[#4edea3] bg-clip-text text-transparent">

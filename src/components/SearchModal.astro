@@ -14,7 +14,7 @@ const allPosts = [...allWriteups, ...allNotes]
       description: post.data.description || '',
       tags: post.data.tags || [],
       collection: collectionName,
-      url: `/ctf-writeups/${collectionName}/${post.id}/`
+      url: `/${collectionName}/${post.id}/`
     };
   });
 
@@ -24,7 +24,7 @@ allPosts.forEach(post => post.tags.forEach(t => allTags.add(t)));
 const tagsArray = Array.from(allTags).map(t => ({
   type: 'tag',
   title: `#${t}`,
-  url: `/ctf-writeups/tags/${t}`
+  url: `/tags/${t}`
 }));
 
 // Provide default recent items (just the first 5 posts)

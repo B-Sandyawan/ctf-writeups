@@ -46,7 +46,7 @@ const { tag, posts } = Astro.props;
     <div class="max-w-6xl mx-auto">
       <!-- Back Link -->
       <a
-        href="/ctf-writeups/tags/"
+        href="/tags/"
         class="inline-flex items-center gap-2 text-sm text-text-muted hover:text-[#00dbe7] transition-colors duration-300 mb-8 group"
       >
         <svg class="w-4 h-4 transition-transform duration-300 group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -75,7 +75,7 @@ const { tag, posts } = Astro.props;
               description={post.data.description}
               date={post.data.date}
               tags={post.data.tags}
-              url={`/ctf-writeups/${collection}/${post.id}`}
+              url={`/${collection}/${post.id}`}
               collection={collection}
             />
           </div>

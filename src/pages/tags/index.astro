@@ -51,7 +51,7 @@ const sortedTags = Array.from(tagStats.entries()).sort((a, b) => a[0].localeComp
     <div id="tags-grid" class="flex flex-wrap gap-3 pb-12">
       {sortedTags.map(([tag, counts]) => (
         <a
-          href={`/ctf-writeups/tags/${tag}`}
+          href={`/tags/${tag}`}
           class="tag-item group"
           data-writeups={counts.writeups}
           data-notes={counts.notes}
