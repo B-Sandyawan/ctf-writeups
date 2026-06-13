@@ -1,10 +1,11 @@
-Linux File System
+# **Linux File System**
+
 **File system:** structure of storage that organize data into files and directory. The file live in the directory which are often nested with other directory
 **Root Directory:** The root of the entire system directory tree. represented by a single forward slash `/` 
 **Paths**: set of file and directory. used to locate a specific file or program
 example: `/home/downloads/flag.txt`
 
-**PATH TYPES**
+## **PATH TYPES**
 **Absolute path:** The path which trace the location of file which start from root directory until the location of the file example: `/home/downloads/flag.txt`
 **Relative path:** The path that do not start with forward slash or the root. Its start form your working directory.
 **./ (Dot file):** This symbol represented current directory using cd ./ doesn't move you into other directory
@@ -17,4 +18,10 @@ cd: change directory
 mv: move
 pwd: print working directory
 
-
+## **FILE GLOBING**
+There are several ways to write file location with out typing all 
+you can use
+`*` use this to select all
+`?` use this to change one char like fill the blink
+`[]` use this to make show file that contain some letters
+`[^]` use this to exclude some letters
