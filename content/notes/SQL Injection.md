@@ -52,3 +52,4 @@ This results in the SQL query:
 `SELECT * FROM products WHERE category = 'Gifts' OR 1=1--' AND released = 1`
 
 The modified query returns all items where either the `category` is `Gifts`, or `1` is equal to `1`. As `1=1` is always true, the query returns all items.
+
