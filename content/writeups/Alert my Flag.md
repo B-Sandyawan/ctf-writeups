@@ -144,3 +144,78 @@ app.listen(PORT, () => {
 });
 ```
 
+Dengan tampilan awal 
+![[Pasted image 20260714210824.png]]
+
+Dengan membaca source code 
+```javascript
+const visit = async (url) => {
+  console.log(`Start visiting: ${url}`);
+
+  const browser = await puppeteer.launch({
+    headless: "new",
+    pipe: true,
+    executablePath: "/usr/bin/chromium",
+    args: [
+      "--no-sandbox",
+      "--disable-setuid-sandbox",
+      "--disable-dev-shm-usage",
+      "--disable-gpu",
+      '--js-flags="--noexpose_wasm"',
+    ],
+  });
+
+  let successful = false;
+  try {
+
+    await browser.setCookie({
+      "name": "flag",
+      "value": FLAG,
+      "domain": new URL(APP_URL).hostname,
+      "path": "/",
+      "httpOnly": true,
+    });
+
+    const page = await browser.newPage();
+
+    // Detect `alert(flag)`
+    page.on('dialog', async dialog => {
+      const message = dialog.message();
+      const type = dialog.type()
+      console.log(`Dialog message: ${message}`);
+      console.log(`Dialog type: ${type}`);
+      
+      if(type === "alert" && message === FLAG) {
+        successful = true;
+      }
+      await dialog.accept();
+    });
+    
+    await page.goto(url, { timeout: 5000 });
+    await sleep(3000);
+    await page.close();
+  } catch (e) {
+    console.error(e);
+  }
+
+  await browser.close();
+
+  console.log(`End visiting: ${url}`);
+
+  return successful;
+};
+
+```
+
+kita paham bahwa bot akan berkunjung ke page kita dan set flag di cookie dan untuk mendapat kan nya kita harus memicu alert(flag)
+
+nah tapi kita bisa di lihat di bawah 
+```javascript
+if(username.includes("flag") || username.includes("alert")) {
+    result = "<p>invalid input</p>";
+  } else {
+    result = `<h1>Hello ${username}!</h1>`
+  }
+```
+Kita tidak bisa menulis payload nya dengan kata flag atau pun alert karena itu saya pun mencoba untuk encode alert nya dan flag nya  menggunakan hex hingga menjadi seperti ini
+`\x61\x6c\x65\x72\x74\x28\x66\x6c\x61\x67\x29`
