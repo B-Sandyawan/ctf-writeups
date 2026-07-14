@@ -222,3 +222,5 @@ Kita tidak bisa menulis payload nya dengan kata flag atau pun alert karena itu s
 sehingga kita bisa menggunakan function eval bawaan javascript untuk decode hex kita hingga hasil nya nanti kayak gini 
 `<script>eval('\x61\x6c\x65\x72\x74\x28\x66\x6c\x61\x67\x29')</script>`
 udah deh tinggal submit dapat flag nya 
+![[Pasted image 20260714211724.png]]
+Flag: Alpaca{n0w_c4n_U_send_fl4g_t0_ur_s3rver_d1rectly?}
