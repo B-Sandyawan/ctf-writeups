@@ -219,3 +219,6 @@ if(username.includes("flag") || username.includes("alert")) {
 ```
 Kita tidak bisa menulis payload nya dengan kata flag atau pun alert karena itu saya pun mencoba untuk encode alert nya dan flag nya  menggunakan hex hingga menjadi seperti ini
 `\x61\x6c\x65\x72\x74\x28\x66\x6c\x61\x67\x29`
+sehingga kita bisa menggunakan function eval bawaan javascript untuk decode hex kita hingga hasil nya nanti kayak gini 
+`<script>eval('\x61\x6c\x65\x72\x74\x28\x66\x6c\x61\x67\x29')</script>`
+udah deh tinggal submit dapat flag nya 
