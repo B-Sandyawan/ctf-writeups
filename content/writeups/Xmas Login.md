@@ -1,3 +1,12 @@
+---
+title: Xmas Login
+tags:
+  - WEBX
+  - SQLI
+date: 2026-07-15
+---
+
+
 Xmas Login - AlpacaHack
 https://alpacahack.com/challenges/xmas-login
 
