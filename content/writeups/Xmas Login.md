@@ -69,4 +69,5 @@ dan flag nya :
 Hello, santa_claus_admin! Here is your flag: d_Happy_N3w_Year_2026!!}
 ```
 
-`Final FLAG: d_Happy_N3w_Year_2026!!} `
+`Final FLAG: Alpaca{M3rry_Xmas!_Th1s_
+is_4_g1ft_fr0m_santa!_and_Happy_N3w_Year_2026!!} `
