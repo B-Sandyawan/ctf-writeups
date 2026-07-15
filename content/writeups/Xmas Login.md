@@ -39,3 +39,22 @@ user: `' OR 1=1 --`
 pw: `bebas`
 
 ini akan dapat flag 
+![[Pasted image 20260715134902.png]]
+
+```
+Hello, alpaca! Here is your flag: Alpaca{M3rry_Xmas!_Th1s_
+```
+
+Nah lalu kita bisa bikin yang kedua
+username: `reindeer'--`
+pw: `bebas`
+![[Pasted image 20260715135047.png]]
+
+```
+Hello, reindeer! Here is your flag: is_4_g1ft_fr0m_santa!_an
+```
+
+nah yang terakhir karena limit username nya gak cukup kita bisa
+
+username: `bebas`
+pw: `'`
